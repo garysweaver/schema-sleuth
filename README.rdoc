@@ -1,0 +1,42 @@
+= Schema Sleuth
+
+A ruby script (for *nix) to connect to a database and spider the database to find all related records based on the table_name, column_name, and value given.
+
+== Installation
+
+Install Git and Ruby.
+
+Install RBI:
+
+      gem install dbi
+
+Clone this project.
+
+Make sure script is executable if it isn't:
+
+     chmod +x ss
+
+== Use
+
+Usage:
+
+      ss driver_url user pass column_name value [table_names_query] [column_names_query]
+
+If column_names_query is defined, the table name should be defined as $TABLE_NAME.
+examples:
+
+MySQL:
+
+      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 1234
+
+Oracle:
+
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234
+
+Specify your own queries for custom DB supported by Ruby DBI:
+
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
+
+== License
+
+Copyright (c) 2010 Gary S. Weaver, released under the {MIT license}[http://github.com/garysweaver/schema-sleuth/blob/master/LICENSE].
