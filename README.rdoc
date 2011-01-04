@@ -50,7 +50,8 @@ Sample output:
       Server version: 12.1.2.3.4
       
       select TABLE_NAME from ALL_ALL_TABLES
-      Tables: [["DUAL"], ..., ["SAMPLE_TABLE_A"], ["SAMPLE_TABLE_B"], ["SAMPLE_TABLE_C"], ["SAMPLE_TABLE_D"],      ["SAMPLE_TABLE_E"], ...]
+      Tables: [["DUAL"], ..., ["SAMPLE_TABLE_A"], ["SAMPLE_TABLE_B"], ["SAMPLE_TABLE_C"], ["SAMPLE_TABLE_D"],
+      ["SAMPLE_TABLE_E"], ...]
       SAMPLE_TABLE_A
       
       USER_ID, USER_NAME
