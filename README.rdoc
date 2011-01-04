@@ -1,6 +1,6 @@
 = Schema Sleuth
 
-A ruby script (for *nix) to connect to a database and spider the database to find all related records based on the table_name, column_name, and value given.
+A ruby script (for *nix) to search a database for related records based given a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5. Also, it will not follow column/value from the same data in a row twice.
 
 == Installation
 
