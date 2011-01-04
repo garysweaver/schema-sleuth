@@ -27,15 +27,15 @@ examples:
 
 MySQL:
 
-      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 123
+      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 111
 
 Oracle:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 222
 
 Specify your own queries for custom DB supported by Ruby DBI:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 333 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
 
 Sample output:
 
