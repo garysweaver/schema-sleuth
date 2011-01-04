@@ -90,4 +90,4 @@ Sample output:
 
 == License
 
-Copyright (c) 2010 Gary S. Weaver, released under the {MIT license}[http://github.com/garysweaver/schema-sleuth/blob/master/LICENSE].
+Copyright (c) 2010-2011 Gary S. Weaver, released under the {MIT license}[http://github.com/garysweaver/schema-sleuth/blob/master/LICENSE].
