@@ -64,7 +64,7 @@ Sample output:
       
       USER_ID, USER_NAME
       ------------
-      123.0, admin, 2008/05/06 00:00:00
+      123.0, Joe
       
       
       SAMPLE_TABLE_B
@@ -79,22 +79,22 @@ Sample output:
       
       VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
       ------------
-      234.0, kia, sorento, 345.0
-      235.0, kia, sportage, 346.0
+      234.0, Kia, Sorento, 345.0
+      235.0, Kia, Sportage, 346.0
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      345.0, red
+      345.0, Red
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      346.0, green
+      346.0, Green
 
 == License
 
