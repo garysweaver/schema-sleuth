@@ -37,6 +37,56 @@ Specify your own queries for custom DB supported by Ruby DBI:
 
       ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
 
+Sample output:
+
+      Loaded DBI 0.4.5
+      driver_url=DBI:OCI8://my.host:1234/MYSCHEMA
+      user=some_schema_username
+      pass=some_schema_password
+      column_name=user_id
+      value=123
+      table_names_query=select TABLE_NAME from ALL_ALL_TABLES
+      column_names_query=select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'
+      Server version: 12.1.2.3.4
+      
+      select TABLE_NAME from ALL_ALL_TABLES
+      Tables: [["DUAL"], ..., ["SAMPLE_TABLE_A"], ["SAMPLE_TABLE_B"], ["SAMPLE_TABLE_C"], ["SAMPLE_TABLE_D"],      ["SAMPLE_TABLE_E"], ...]
+      SAMPLE_TABLE_A
+      
+      USER_ID, USER_NAME
+      ------------
+      123.0, admin, 2008/05/06 00:00:00
+      
+      
+      SAMPLE_TABLE_B
+      
+      USER_ID, VEHICLE_ID
+      ------------
+      123.0, 234.0
+      123.0, 235.0
+      
+      
+      SAMPLE_TABLE_C
+      
+      VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
+      ------------
+      234.0, kia, sorento, 345.0
+      235.0, kia, sportage, 347.0
+      
+      
+      SAMPLE_TABLE_D
+      
+      COLOR_ID, COLOR_NAME
+      ------------
+      345.0, red
+      
+      
+      SAMPLE_TABLE_D
+      
+      COLOR_ID, COLOR_NAME
+      ------------
+      347.0, green
+
 == License
 
 Copyright (c) 2010 Gary S. Weaver, released under the {MIT license}[http://github.com/garysweaver/schema-sleuth/blob/master/LICENSE].
