@@ -35,7 +35,7 @@ Oracle:
 
 Specify your own queries for custom DB supported by Ruby DBI:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
 
 Sample output:
 
@@ -72,7 +72,7 @@ Sample output:
       VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
       ------------
       234.0, kia, sorento, 345.0
-      235.0, kia, sportage, 347.0
+      235.0, kia, sportage, 346.0
       
       
       SAMPLE_TABLE_D
@@ -86,7 +86,7 @@ Sample output:
       
       COLOR_ID, COLOR_NAME
       ------------
-      347.0, green
+      346.0, green
 
 == License
 
