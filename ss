@@ -61,44 +61,68 @@ puts "value=#{value}"
 puts "table_names_query=#{table_names_query}"
 puts "column_names_query=#{column_names_query}"
 
-def sleuth(dbh, table_names, column_names_query, column_name, value, excluded_data_pointers)
+def sleuth(dbh, table_names, column_names_query, column_name, value, excluded_data_pointers, stack)  
+  if stack.size > 5
+    stack.pop
+    return
+  end
+  
   table_names.each do |this_table_name|
     specific_column_names_query = String.new(column_names_query)
     specific_column_names_query['$TABLE_NAME'] = this_table_name
+    last_query = specific_column_names_query
     begin
-      puts specific_column_names_query
+      #puts specific_column_names_query
       column_names_rows = dbh.select_all(specific_column_names_query)
       column_names_rows.each do |column_name_row|
         this_column_name = column_name_row[0]
         if this_column_name.upcase.eql? column_name.upcase
-          
-          puts "#{this_table_name}"
-          puts ''
-          puts column_names_rows.collect {|column_names_row| column_names_row[0] }.join ', '
-          puts '------------'
-          clue_rows = dbh.select_all("select * from #{this_table_name} where #{column_name}=\'#{value}\'")
-          
-          clue_rows.each do |clue_row|
-            puts clue_row.join ', '
-          end
-          puts ''
-          puts ''
-          
-          clue_rows.each_with_index do |clue_row, clue_row_index|
-            clue_row.each_with_index do |clue_row_column_value, clue_row_column_value_index|
-              clue_row_column_name = column_names_rows[clue_row_column_value_index]
-              print ""
-            end
+          count_query = "select count(#{column_name}) from #{this_table_name} where #{column_name}=\'#{value}\'"
+          last_query = count_query
+          count_row = dbh.select_one(count_query)
+          if count_row[0] && count_row[0].to_i > 1000
+            #puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of 1000.)"
+            #puts ''
+            #puts ''
+          else
+            data_query = "select * from #{this_table_name} where #{column_name}=\'#{value}\'"
+            last_query = data_query
+            clue_rows = dbh.select_all(data_query)
             
-            clue_row.each_with_index do |clue_row_column_value, clue_row_column_value_index|
-              if clue_row_column_value && clue_row_column_value.to_s.size > 0
-                clue_row_column_name = column_names_rows[clue_row_column_value_index][0]
-                data_pointer = "#{this_table_name}:#{clue_row.join(', ')}[#{clue_row_column_value_index}]"
-                if !(excluded_data_pointers.include? data_pointer)
-                  excluded_data_pointers << data_pointer
-                  #puts "Following #{data_pointer}"
+            if (clue_rows.size > 0)
+              #sorted_stack = stack.sort.join("\n")
+              #puts "Stack:\n#{sorted_stack}"
+              #puts ''
+              #puts ''
+              
+              puts "#{this_table_name}"
+              puts ''
+              puts column_names_rows.collect {|column_names_row| column_names_row[0] }.join ', '
+              puts '------------'
+          
+              clue_rows.each do |clue_row|
+                puts clue_row.join ', '
+              end
+              puts ''
+              puts ''
+          
+              clue_rows.each_with_index do |clue_row, clue_row_index|
+                clue_row.each_with_index do |clue_row_column_value, clue_row_column_value_index|
+                  if clue_row_column_value && clue_row_column_value.to_s.size > 0
+                    clue_row_column_name = column_names_rows[clue_row_column_value_index][0]
+                    #data_pointer = "#{this_table_name}:#{clue_row.join(', ')}"
+                    data_pointer = "#{this_table_name}.#{clue_row_column_name}"
+                    if !(excluded_data_pointers.include? data_pointer)
+                      #sorted_list = excluded_data_pointers.sort.join("\n")
+                      #puts "#{data_pointer}\nnot found in:\n#{sorted_list}"
+                      excluded_data_pointers << data_pointer
+                      #puts "Following #{data_pointer}"
+                      
+                      stack << "#{this_table_name}.#{clue_row_column_name} = '#{clue_row_column_value}'"
                   
-                  sleuth(dbh, table_names, column_names_query, clue_row_column_name, clue_row_column_value, excluded_data_pointers)
+                      sleuth(dbh, table_names, column_names_query, clue_row_column_name, clue_row_column_value, excluded_data_pointers, stack)
+                    end
+                  end
                 end
               end
             end
@@ -107,11 +131,16 @@ def sleuth(dbh, table_names, column_names_query, column_name, value, excluded_da
       end
       
     rescue DBI::DatabaseError => e
-      puts "An error occurred"
+      puts "A database error occurred while processing the query: #{last_query.to_s}"
       puts "Error code: #{e.err}"
       puts "Error message: #{e.errstr}"
+    rescue
+      puts "An error occurred #{e}"
     end
   end
+  
+  stack.pop
+  return
 end
 
 table_names = []
@@ -132,7 +161,7 @@ begin
     table_names << table_name_row[0]
   end
   
-  sleuth(dbh, table_names, column_names_query, column_name, value, [])
+  sleuth(dbh, table_names, column_names_query, column_name, value, [], [])
   
 rescue DBI::DatabaseError => e
   puts "An error occurred"
