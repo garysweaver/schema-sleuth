@@ -12,10 +12,18 @@ Install RBI:
 
 Clone this project.
 
-Make sure script is executable if it isn't:
+      cd ~
+      git clone http://github.com/garysweaver/schema-sleuth.git
 
-     chmod +x ssleuth
+Then add the following to your .bash_profile, or whatever you want:
 
+      #schema-sleuth
+      export PATH=$PATH:~/schema-sleuth
+
+Restart Terminal.app or whatever, and then test by doing:
+
+      ssleuth
+	
 == Use
 
 Usage:
