@@ -27,11 +27,11 @@ examples:
 
 MySQL:
 
-      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 1234
+      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 123
 
 Oracle:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234
+      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123
 
 Specify your own queries for custom DB supported by Ruby DBI:
 
