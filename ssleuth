@@ -7,14 +7,14 @@ puts "Loaded DBI #{DBI::VERSION}"
 
 if ARGV.size != 5 && ARGV != 7
   puts ''
-  puts 'usage: ss driver_url user pass column_name value [table_names_query] [column_names_query]'
+  puts 'usage: ssleuth driver_url user pass column_name value [table_names_query] [column_names_query]'
   puts ''
   puts 'If column_names_query is defined, the table name should be defined as $TABLE_NAME.'
   
   puts 'examples:'
-  puts 'MySQL: ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 1234'
-  puts 'Oracle: ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234'
-  puts 'Custom: ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name =\'$TABLE_NAME\'"'
+  puts 'MySQL: ssleuth DBI:Mysql:TESTDB:localhost jdoe passwd user_id 1234'
+  puts 'Oracle: ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234'
+  puts 'Custom: ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name =\'$TABLE_NAME\'"'
   
   exit
 end
@@ -41,11 +41,11 @@ else
     puts ''
     puts 'You must specify table_names_query and column_names_query arguments for this driver_url.'
     puts ''
-    puts 'ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name =\'$TABLE_NAME\'"'
+    puts 'ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 1234 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name =\'$TABLE_NAME\'"'
     puts ''
     puts 'If column_names_query is defined, the table name should be defined as $TABLE_NAME.'
     puts ''
-    puts 'Please submit a patch with the queries you figure out to make ss easier to use!'
+    puts 'Please submit a patch with the queries you figure out to make Schema Sleuth easier to use!'
     puts ''
     puts 'We currently have a table_names_query and column_names_query argument for driver urls starting with:'
     puts 'DBI:OCI8 (Oracle)'

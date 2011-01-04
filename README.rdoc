@@ -14,28 +14,28 @@ Clone this project.
 
 Make sure script is executable if it isn't:
 
-     chmod +x ss
+     chmod +x ssleuth
 
 == Use
 
 Usage:
 
-      ss driver_url user pass column_name value [table_names_query] [column_names_query]
+      ssleuth driver_url user pass column_name value [table_names_query] [column_names_query]
 
 If column_names_query is defined, the table name should be defined as $TABLE_NAME.
 examples:
 
 MySQL:
 
-      ss DBI:Mysql:TESTDB:localhost jdoe passwd user_id 123
+      ssleuth DBI:Mysql:TESTDB:localhost jdoe passwd user_id 123
 
 Oracle:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123
+      ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123
 
 Specify your own queries for custom DB supported by Ruby DBI:
 
-      ss DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
+      ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
 
 Sample output:
 
