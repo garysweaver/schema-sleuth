@@ -77,17 +77,19 @@ def sleuth(dbh, table_names, column_names_query, column_name, value, excluded_da
       column_names_rows.each do |column_name_row|
         this_column_name = column_name_row[0]
         if this_column_name.upcase.eql? column_name.upcase
-          count_query = "select count(#{column_name}) from #{this_table_name} where #{column_name}=\'#{value}\'"
+          count_query = "select count(#{column_name}) from #{this_table_name} where #{column_name}=?"
+          prepared_count_query = dbh.prepare(count_query)
           last_query = count_query
-          count_row = dbh.select_one(count_query)
+          count_row = dbh.select_one(count_query, value)
           if count_row[0] && count_row[0].to_i > 1000
             #puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of 1000.)"
             #puts ''
             #puts ''
           else
-            data_query = "select * from #{this_table_name} where #{column_name}=\'#{value}\'"
+            data_query = "select * from #{this_table_name} where #{column_name}=?"
+            prepared_data_query = dbh.prepare(data_query)
             last_query = data_query
-            clue_rows = dbh.select_all(data_query)
+            clue_rows = dbh.select_all(data_query, value)
             
             if (clue_rows.size > 0)
               #sorted_stack = stack.sort.join("\n")
