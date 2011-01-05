@@ -36,8 +36,8 @@ Options:
 * --password, -p: database password. e.g. secret
 * --column-name, -c: column name. e.g. user_id
 * --value, -e: column value. e.g. 1234
-* --table-names-query, -t: (semi-optional) SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
-* --column-names-query, -n: (semi-optional) SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* --table-names-query, -t: (might be optional) SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* --column-names-query, -n: (might be optional) SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 * --generate-inserts, -i: (optional) output as insert statements
 * --maximum-depth, -s: (optional) maximum depth (default: 5)
 * --maximum-row-count, -m: (optional) maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries. (Default: 1000)
