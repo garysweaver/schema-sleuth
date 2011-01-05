@@ -39,6 +39,13 @@ module SchemaSleuth
   end
 end
 
+
+ORACLE_TABLE_NAMES_QUERY = 'select TABLE_NAME from ALL_ALL_TABLES'
+ORACLE_COLUMN_NAMES_QUERY = 'select column_name FROM all_tab_cols where table_name = \'$TABLE_NAME\''
+
+EXAMPLE_TABLE_NAMES_QUERY = ORACLE_TABLE_NAMES_QUERY
+EXAMPLE_COLUMN_NAMES_QUERY = ORACLE_COLUMN_NAMES_QUERY
+
 opts = Trollop::options do
   version "Schema Sleuth 2.0 (c) 2010-2011 Gary S. Weaver"
   banner <<-EOS
@@ -58,7 +65,7 @@ opts = Trollop::options do
   
   Custom:
   
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = ?"
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "#{EXAMPLE_TABLE_NAMES_QUERY}" -n "#{EXAMPLE_COLUMN_NAMES_QUERY}"
 
   
   Usage:
@@ -73,9 +80,11 @@ opts = Trollop::options do
   opt :password, "database password. e.g. secret", :short => 'p', :type => String
   opt :column_name, "column name. e.g. user_id", :short => 'c', :type => String
   opt :value, "column value. e.g. 1234", :short => 'e', :type => String
-  opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"select TABLE_NAME from ALL_ALL_TABLES\"", :short => 't', :type => String
-  opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'\"", :short => 'n', :type => String
+  opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 't', :type => String
+  opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 'n', :type => String
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
+  opt :maximum_depth, "maximum depth", :short => 's', :default => 5
+  opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries.", :short => 'm', :default => 1000
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
 
@@ -84,31 +93,28 @@ Trollop::die :user, "must provide a database username. e.g. jdoe" unless opts[:u
 Trollop::die :password, "must provide a atabase password. e.g. secret" unless opts[:password]
 Trollop::die :column_name, "must provide a column name. e.g. user_id" unless opts[:column_name]
 Trollop::die :value, "must provide a column value. e.g. 1234" unless opts[:value]
+Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i > 0
+Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 1
 
 puts "DBI version: #{DBI::VERSION}" if opts[:debug]
 
 if opts[:driver_url].upcase.match(/^DBI:OCI8/)
   # oracle
-  opts[:table_names_query] = 'select TABLE_NAME from ALL_ALL_TABLES' if opts[:table_names_query].blank?
-  opts[:column_names_query] = 'select column_name FROM all_tab_cols where table_name = \'$TABLE_NAME\'' if opts[:column_names_query].blank?
+  opts[:table_names_query] = ORACLE_TABLE_NAMES_QUERY if opts[:table_names_query].blank?
+  opts[:column_names_query] = ORACLE_COLUMN_NAMES_QUERY if opts[:column_names_query].blank?
 else
   Trollop::die :table_names_query, "Please specify a table names query for this database." if opts[:table_names_query].blank?
   Trollop::die :column_names_query, "Please specify a column names query for this database." if opts[:column_names_query].blank?
 end
 
 if opts[:debug]
-  puts "driver_url=#{opts[:driver_url]}"
-  puts "user=#{opts[:user]}"
-  puts "password=#{opts[:password]}"
-  puts "column_name=#{opts[:column_name]}"
-  puts "value=#{opts[:value]}"
-  puts "table_names_query=#{opts[:table_names_query]}"
-  puts "column_names_query=#{opts[:column_names_query]}"
-  puts "debug=#{opts[:debug]}"
+  opts.keys.sort.each do |opt_key_sym|
+    puts "#{opt_key_sym.to_s}=#{opts[opt_key_sym]}"
+  end
 end
 
 def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_pointers, stack)  
-  if stack.size > 5
+  if stack.size > opts[:maximum_depth].to_i
     if opts[:debug]
       puts "Stack size exceeded. Skipping..."
     else
@@ -147,9 +153,9 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
           prepared_count_query = dbh.prepare(count_query)
           last_query = count_query
           count_row = dbh.select_one(count_query, value)
-          if count_row[0] && count_row[0].to_i > 1000
+          if count_row[0] && count_row[0].to_i > opts[:maximum_row_count].to_i
             if opts[:debug]
-              puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of 1000.)"
+              puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of #{opts[:maximum_row_count]}.)"
               puts ''
               puts ''
             else
