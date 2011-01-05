@@ -27,7 +27,7 @@ end
 
 
 opts = Trollop::options do
-  version "Schema Sleuth 2.0 (c) 2011 Gary S. Weaver"
+  version "Schema Sleuth 2.0 (c) 2010-2011 Gary S. Weaver"
   banner <<-EOS
   
   Connects to and spiders a database, outputting related records based on the column name and value provided.
