@@ -70,6 +70,7 @@ opts = Trollop::options do
   opt :value, "column value. e.g. 1234", :short => 'e', :type => String
   opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"select TABLE_NAME from ALL_ALL_TABLES\"", :short => 't', :type => String
   opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'\"", :short => 'n', :type => String
+  opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
 
@@ -143,16 +144,27 @@ def sleuth(dbh, table_names, opts, excluded_data_pointers, stack)
                 puts ''
               end
               
-              puts "#{this_table_name}"
-              puts ''
-              puts column_names_rows.collect {|column_names_row| column_names_row[0] }.join ', '
-              puts '------------'
+              if opts[:generate_inserts]
+                puts 'BEGIN'
+                puts '   COMMIT; -- ends previous transaction'
+                puts '   SET TRANSACTION READ WRITE;'
+                clue_rows.each do |clue_row|
+                  puts "   INSERT INTO #{this_table_name} (#{column_names_rows.collect {|column_names_row| column_names_row[0] }.join ', '}) VALUES (#{clue_row.collect{|x| x.prettify }.collect{|x| x.sql_valuify }.join ', '});"
+                end
+                puts '   COMMIT;'
+                puts 'END;'
+              else
+                puts "#{this_table_name}"
+                puts ''
+                puts column_names_rows.collect {|column_names_row| column_names_row[0] }.join ', '
+                puts '------------'
           
-              clue_rows.each do |clue_row|
-                puts clue_row.collect{|x| x.prettify }.collect{|x| x.sql_valuify }.join ', '
+                clue_rows.each do |clue_row|
+                  puts clue_row.collect{|x| x.prettify }.collect{|x| x.sql_valuify }.join ', '
+                end
+                puts ''
+                puts ''
               end
-              puts ''
-              puts ''
           
               clue_rows.each_with_index do |clue_row, clue_row_index|
                 clue_row.each_with_index do |clue_row_column_value, clue_row_column_value_index|

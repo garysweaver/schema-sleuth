@@ -42,6 +42,7 @@ Restart Terminal.app or whatever, and then test by doing:
      --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table
                                      name.
                                      e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+           --generate-inserts, -i:   output as insert statements
                       --debug, -d:   outputs debugging information
                     --version, -v:   Print version and exit
                        --help, -h:   Show this message
@@ -63,6 +64,8 @@ Custom:
        -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 == Sample Output
+
+Example of normal output:
 
       SAMPLE_TABLE_A
       
@@ -99,6 +102,25 @@ Custom:
       COLOR_ID, COLOR_NAME
       ------------
       '346', 'Green'
+
+Example of output with -i:
+
+      BEGIN
+	     COMMIT; -- ends previous transaction
+	     SET TRANSACTION READ WRITE;
+         INSERT INTO SAMPLE_TABLE_A (USER_ID, USER_NAME) VALUES ('123', 'Joe');
+         COMMIT;
+      END;
+      
+      BEGIN
+	     COMMIT; -- ends previous transaction
+	     SET TRANSACTION READ WRITE;
+         INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '234');
+         INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '235');
+         COMMIT;
+      END;
+      
+      ...
 
 == License
 
