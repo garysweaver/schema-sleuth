@@ -106,15 +106,15 @@ Example of normal output:
 Example of output with -i:
 
       BEGIN
-	     COMMIT; -- ends previous transaction
-	     SET TRANSACTION READ WRITE;
+         COMMIT; -- ends previous transaction
+         SET TRANSACTION READ WRITE;
          INSERT INTO SAMPLE_TABLE_A (USER_ID, USER_NAME) VALUES ('123', 'Joe');
          COMMIT;
       END;
       
       BEGIN
-	     COMMIT; -- ends previous transaction
-	     SET TRANSACTION READ WRITE;
+         COMMIT; -- ends previous transaction
+         SET TRANSACTION READ WRITE;
          INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '234');
          INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '235');
          COMMIT;
