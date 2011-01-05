@@ -1,14 +1,15 @@
 = Schema Sleuth
 
-A ruby script (for *nix) to search a database for related records based given a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5. Also, it will not follow column/value from the same data in a row twice.
+A ruby script (for *nix) to search a database for related records based given a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc.
 
 == Installation
 
 Install Git and Ruby.
 
-Install RBI:
+Install RBI and Trollop:
 
       gem install dbi
+      gem install trollop
 
 Clone this project.
 
@@ -22,79 +23,78 @@ Then add the following to your .bash_profile, or whatever you want:
 
 Restart Terminal.app or whatever, and then test by doing:
 
-      ssleuth
+      ssleuth -h
 	
-== Use
+== Usage
 
-Usage:
+      ssleuth [options]
+       
+      where [options] are:
 
-      ssleuth driver_url user pass column_name value [table_names_query] [column_names_query]
+        --driver-url, -r <s>:   DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
+              --user, -u <s>:   database username. e.g. jdoe
+          --password, -p <s>:   database password. e.g. secret
+       --column-name, -c <s>:   column name. e.g. user_id
+             --value, -e <s>:   column value. e.g. 1234
+ --table-names-query, -t <s>:   SQL query to use to get full listing of tables. e.g. "select TABLE_NAME from ALL_ALL_TABLES"
+--column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name =
+                                '$TABLE_NAME'"
+                 --debug, -d:   outputs debugging information
+               --version, -v:   Print version and exit
+                  --help, -h:   Show this message
 
-If column_names_query is defined, the table name should be defined as $TABLE_NAME.
-examples:
+== Examples
 
 MySQL:
 
-      ssleuth DBI:Mysql:TESTDB:localhost jdoe passwd user_id 123
+      ssleuth -r DBI:Mysql:TESTDB:localhost -u jdoe -p secret -c user_id -e 1234
 
 Oracle:
 
-      ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123
+      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
 
-Specify your own queries for custom DB supported by Ruby DBI:
+Custom:
 
-      ssleuth DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD jdoe passwd user_id 123 "select TABLE_NAME from ALL_ALL_TABLES" "select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'"
+      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = ?"
 
-Sample output:
 
-      Loaded DBI 0.4.5
-      driver_url=DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
-      user=some_schema_username
-      pass=some_schema_password
-      column_name=user_id
-      value=123
-      table_names_query=select TABLE_NAME from ALL_ALL_TABLES
-      column_names_query=select column_name FROM all_tab_cols where table_name ='$TABLE_NAME'
-      Server version: 12.1.2.3.4
-      
-      select TABLE_NAME from ALL_ALL_TABLES
-      Tables: [["DUAL"], ..., ["SAMPLE_TABLE_A"], ["SAMPLE_TABLE_B"], ["SAMPLE_TABLE_C"], ["SAMPLE_TABLE_D"],
-      ["SAMPLE_TABLE_E"], ...]
+== Sample Output
+
       SAMPLE_TABLE_A
       
       USER_ID, USER_NAME
       ------------
-      123.0, Joe
+      123, Joe
       
       
       SAMPLE_TABLE_B
       
       USER_ID, VEHICLE_ID
       ------------
-      123.0, 234.0
-      123.0, 235.0
+      123, 234
+      123, 235
       
       
       SAMPLE_TABLE_C
       
       VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
       ------------
-      234.0, Kia, Sorento, 345.0
-      235.0, Kia, Sportage, 346.0
+      234, Kia, Sorento, 345
+      235, Kia, Sportage, 346
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      345.0, Red
+      345, Red
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      346.0, Green
+      346, Green
 
 == License
 
