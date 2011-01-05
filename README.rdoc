@@ -67,6 +67,8 @@ Custom:
 
 Example of normal output:
 
+      .......
+
       SAMPLE_TABLE_A
       
       USER_ID, USER_NAME
@@ -95,32 +97,25 @@ Example of normal output:
       COLOR_ID, COLOR_NAME
       ------------
       '345', 'Red'
-      
-      
-      SAMPLE_TABLE_D
-      
-      COLOR_ID, COLOR_NAME
-      ------------
       '346', 'Green'
 
 Example of output with -i:
 
-      BEGIN
-         COMMIT; -- ends previous transaction
-         SET TRANSACTION READ WRITE;
+         .......
+
          INSERT INTO SAMPLE_TABLE_A (USER_ID, USER_NAME) VALUES ('123', 'Joe');
-         COMMIT;
-      END;
-      
-      BEGIN
-         COMMIT; -- ends previous transaction
-         SET TRANSACTION READ WRITE;
          INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '234');
          INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '235');
-         COMMIT;
-      END;
-      
-      ...
+         INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('234', 'Kia', 'Sorento', '345');
+         INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('235', 'Kia', 'Sportage', '346');
+         INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('345', 'Red');
+         INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('346', 'Green');
+
+== Troubleshooting
+
+If debug is not specified, you can see progress via the dots, etc. printed. A '.' means that data was retrieved. A 'M' indicates results exceeded the maximum count, so that path was cut. A 'O' indicates that the maximum number of steps in the path was exceeded, so that path was cut.
+
+Executing with the -d switch provides greater debugging information.
 
 == License
 
