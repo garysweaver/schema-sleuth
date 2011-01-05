@@ -15,6 +15,14 @@ class Object
   def prettify
     to_s
   end
+  
+  def sql_valuify
+    if nil?
+      "NULL"
+    else
+      "'" + to_s + "'"
+    end
+  end
 end
 
 # prettify by Yahuda Katz
@@ -141,7 +149,7 @@ def sleuth(dbh, table_names, opts, excluded_data_pointers, stack)
               puts '------------'
           
               clue_rows.each do |clue_row|
-                puts clue_row.collect{|x| x.prettify }.join ', '
+                puts clue_row.collect{|x| x.prettify }.collect{|x| x.sql_valuify }.join ', '
               end
               puts ''
               puts ''

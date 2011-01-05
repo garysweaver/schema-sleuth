@@ -68,37 +68,37 @@ Custom:
       
       USER_ID, USER_NAME
       ------------
-      123, Joe
+      '123', 'Joe'
       
       
       SAMPLE_TABLE_B
       
       USER_ID, VEHICLE_ID
       ------------
-      123, 234
-      123, 235
+      '123', '234'
+      '123', '235'
       
       
       SAMPLE_TABLE_C
       
       VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
       ------------
-      234, Kia, Sorento, 345
-      235, Kia, Sportage, 346
+      '234', 'Kia', 'Sorento', '345'
+      '235', 'Kia', 'Sportage', '346'
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      345, Red
+      '345', 'Red'
       
       
       SAMPLE_TABLE_D
       
       COLOR_ID, COLOR_NAME
       ------------
-      346, Green
+      '346', 'Green'
 
 == License
 
