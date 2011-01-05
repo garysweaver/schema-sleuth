@@ -40,8 +40,7 @@ Restart Terminal.app or whatever, and then test by doing:
       --table-names-query, -t <s>:   SQL query to use to get full listing of tables.
                                      e.g. "select TABLE_NAME from ALL_ALL_TABLES"
      --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name.
-                                     e.g. "select column_name FROM all_tab_cols where table_name =
-                                '$TABLE_NAME'"
+                                     e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
                       --debug, -d:   outputs debugging information
                     --version, -v:   Print version and exit
                        --help, -h:   Show this message
@@ -60,7 +59,7 @@ Custom:
 
       ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 \
        -t "select TABLE_NAME from ALL_ALL_TABLES" \
-       -n "select column_name FROM all_tab_cols where table_name = ?"
+       -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 == Sample Output
 
