@@ -81,7 +81,7 @@ opts = Trollop::options do
   opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 'n', :type => String
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
-  opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries.", :short => 'm', :default => 1000
+  opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
 
