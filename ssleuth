@@ -60,6 +60,10 @@ opts = Trollop::options do
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
   
+  Follow NEXT_USER_ID and PREV_USER_ID as if were USER_ID without displaying progress indicator:
+  
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -q -x 'next_,prev_'
+  
   Custom:
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "#{EXAMPLE_TABLE_NAMES_QUERY}" -n "#{EXAMPLE_COLUMN_NAMES_QUERY}"
@@ -75,13 +79,14 @@ opts = Trollop::options do
   opt :driver_url, "DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD", :short => 'r', :type => String
   opt :user, "database username. e.g. jdoe", :short => 'u', :type => String
   opt :password, "database password. e.g. secret", :short => 'p', :type => String
-  opt :column_name, "column name. e.g. user_id", :short => 'c', :type => String
+  opt :column_name, "column name (case-insensitive). e.g. user_id", :short => 'c', :type => String
   opt :value, "column value. e.g. 1234", :short => 'e', :type => String
   opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 't', :type => String
   opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 'n', :type => String
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
   opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
+  opt :column_name_partials_to_remove, "comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify -x 'next_'", :short => 'x', :type => String
   opt :quiet, "quiet. does not output progress indicator", :short => 'q', :default => false
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
@@ -112,7 +117,7 @@ if opts[:debug]
   end
 end
 
-def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_pointers, stack)  
+def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_pointers, stack, column_name_partials_to_remove)  
   if stack.size > opts[:maximum_depth].to_i
     if opts[:debug]
       puts "Stack size exceeded. Skipping..."
@@ -147,8 +152,14 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
       store_table = store[this_table_name]
       
       store_table.columns.each do |this_column_name|
-        if this_column_name.upcase.eql? column_name.upcase
-          count_query = "select count(#{column_name}) from #{this_table_name} where #{column_name}=?"
+        capitalized_column_name_partial = String.new(this_column_name.upcase)
+        column_name_partials_to_remove.each do |column_name_partial_to_remove|
+          capitalized_column_name_partial.gsub!(column_name_partial_to_remove.upcase, '')
+        end
+        puts "Converted #{this_column_name} to #{capitalized_column_name_partial} for match" if opts[:debug]
+        
+        if capitalized_column_name_partial.eql? column_name.upcase
+          count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name}=?"
           prepared_count_query = dbh.prepare(count_query)
           last_query = count_query
           count_row = dbh.select_one(count_query, value)
@@ -162,7 +173,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
               STDOUT.flush
             end
           else
-            data_query = "select * from #{this_table_name} where #{column_name}=?"
+            data_query = "select * from #{this_table_name} where #{this_column_name}=?"
             prepared_data_query = dbh.prepare(data_query)
             last_query = data_query
             clue_rows = dbh.select_all(data_query, value)
@@ -204,7 +215,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
                       excluded_data_pointers << data_pointer
                       stack << "#{this_table_name}.#{clue_row_column_name} = '#{clue_row_column_value}'"
                   
-                      sleuth(dbh, store, table_names, clue_row_column_name, clue_row_column_value, opts, excluded_data_pointers, stack)
+                      sleuth(dbh, store, table_names, clue_row_column_name, clue_row_column_value, opts, excluded_data_pointers, stack, column_name_partials_to_remove)
                     end
                   end
                 end
@@ -277,7 +288,9 @@ begin
   
   store = {}
   
-  sleuth(dbh, store, table_names, opts[:column_name], opts[:value], opts, [], [])
+  column_name_partials_to_remove = opts[:column_name_partials_to_remove].blank? ? [] : opts[:column_name_partials_to_remove].split(',')
+  
+  sleuth(dbh, store, table_names, opts[:column_name], opts[:value], opts, [], [], column_name_partials_to_remove)
   
   puts ''
   puts "Outputting..." if opts[:debug]
