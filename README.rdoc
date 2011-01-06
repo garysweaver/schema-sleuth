@@ -8,129 +8,126 @@ Install Git and Ruby.
 
 Install RBI and Trollop:
 
-      gem install dbi
-      gem install trollop
+  gem install dbi
+  gem install trollop
 
 Clone this project.
 
-      cd ~
-      git clone http://github.com/garysweaver/schema-sleuth.git
+  cd ~
+  git clone http://github.com/garysweaver/schema-sleuth.git
 
 Then add the following to your .bash_profile, or whatever you want:
 
-      #schema-sleuth
-      export PATH=$PATH:~/schema-sleuth
+  #schema-sleuth
+  export PATH=$PATH:~/schema-sleuth
 
 Restart Terminal.app or whatever, and then test by doing:
 
-      ssleuth -h
+  ssleuth -h
 	
 == Usage
 
-Output from ssleuth -h:
+  Connects to and spiders a database, outputting related records based on the column name and value provided.
 
-      Connects to and spiders a database, outputting related records based on the column name and value provided.
+  Examples:
 
-      Examples:
-  
-  
-      MySQL:
-  
-      ssleuth -r DBI:Mysql:TESTDB:localhost -u jdoe -p secret -c user_id -e 1234
-  
-      Oracle:
-  
-      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
-  
-      Custom:
-  
-      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name =
-    '$TABLE_NAME'"
 
-  
-      Usage:
-  
-             ssleuth [options]
-         
-      where [options] are:
-  
-              --driver-url, -r <s>:   DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
-                    --user, -u <s>:   database username. e.g. jdoe
-                --password, -p <s>:   database password. e.g. secret
-             --column-name, -c <s>:   column name. e.g. user_id
-                   --value, -e <s>:   column value. e.g. 1234
-       --table-names-query, -t <s>:   SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
-      --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name =
-                                      '$TABLE_NAME'"
-            --generate-inserts, -i:   output as insert statements
-           --maximum-depth, -s <i>:   maximum depth (default: 5)
-       --maximum-row-count, -m <i>:   maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result
-                                      summaries, via multiple queries. (Default: 1000)
-                       --debug, -d:   outputs debugging information
-                     --version, -v:   Print version and exit
-                        --help, -h:   Show this message
+  MySQL:
+
+  ssleuth -r DBI:Mysql:TESTDB:localhost -u jdoe -p secret -c user_id -e 1234
+
+  Oracle:
+
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
+
+  Custom:
+
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+
+
+  Usage:
+
+         ssleuth [options]
+     
+  where [options] are:
+
+          --driver-url, -r <s>:   DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
+                --user, -u <s>:   database username. e.g. jdoe
+            --password, -p <s>:   database password. e.g. secret
+         --column-name, -c <s>:   column name. e.g. user_id
+               --value, -e <s>:   column value. e.g. 1234
+   --table-names-query, -t <s>:   SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+  --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name =
+                                  '$TABLE_NAME'"
+        --generate-inserts, -i:   output as insert statements
+       --maximum-depth, -s <i>:   maximum depth (default: 5)
+   --maximum-row-count, -m <i>:   maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result
+                                  summaries, via multiple queries. (Default: 1000)
+                   --debug, -d:   outputs debugging information
+                 --version, -v:   Print version and exit
+                    --help, -h:   Show this message
 
 == Examples
 
 MySQL:
 
-      ssleuth -r DBI:Mysql:TESTDB:localhost -u jdoe -p secret -c user_id -e 1234
+  ssleuth -r DBI:Mysql:TESTDB:localhost -u jdoe -p secret -c user_id -e 1234
 
 Oracle:
 
-      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
 
 Custom:
 
-      ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 == Sample Output
 
 Example of normal output:
 
-      .......
+  .......
 
-      SAMPLE_TABLE_A
-      
-      USER_ID, USER_NAME
-      ------------
-      '123', 'Joe'
-      
-      
-      SAMPLE_TABLE_B
-      
-      USER_ID, VEHICLE_ID
-      ------------
-      '123', '234'
-      '123', '235'
-      
-      
-      SAMPLE_TABLE_C
-      
-      VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
-      ------------
-      '234', 'Kia', 'Sorento', '345'
-      '235', 'Kia', 'Sportage', '346'
-      
-      
-      SAMPLE_TABLE_D
-      
-      COLOR_ID, COLOR_NAME
-      ------------
-      '345', 'Red'
-      '346', 'Green'
+  SAMPLE_TABLE_A
+  
+  USER_ID, USER_NAME
+  ------------
+  '123', 'Joe'
+  
+  
+  SAMPLE_TABLE_B
+  
+  USER_ID, VEHICLE_ID
+  ------------
+  '123', '234'
+  '123', '235'
+  
+  
+  SAMPLE_TABLE_C
+  
+  VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID
+  ------------
+  '234', 'Kia', 'Sorento', '345'
+  '235', 'Kia', 'Sportage', '346'
+  
+  
+  SAMPLE_TABLE_D
+  
+  COLOR_ID, COLOR_NAME
+  ------------
+  '345', 'Red'
+  '346', 'Green'
 
 Example of output with -i:
 
-      .......
-      
-      INSERT INTO SAMPLE_TABLE_A (USER_ID, USER_NAME) VALUES ('123', 'Joe');
-      INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '234');
-      INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '235');
-      INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('234', 'Kia', 'Sorento', '345');
-      INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('235', 'Kia', 'Sportage', '346');
-      INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('345', 'Red');
-      INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('346', 'Green');
+  .......
+  
+  INSERT INTO SAMPLE_TABLE_A (USER_ID, USER_NAME) VALUES ('123', 'Joe');
+  INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '234');
+  INSERT INTO SAMPLE_TABLE_B (USER_ID, VEHICLE_ID) VALUES ('123', '235');
+  INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('234', 'Kia', 'Sorento', '345');
+  INSERT INTO SAMPLE_TABLE_C (VEHICLE_ID, VEHICLE_MAKE, VEHICLE_MODEL, COLOR_ID) VALUES ('235', 'Kia', 'Sportage', '346');
+  INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('345', 'Red');
+  INSERT INTO SAMPLE_TABLE_D (COLOR_ID, COLOR_NAME) VALUES ('346', 'Green');
 
 == Troubleshooting
 
