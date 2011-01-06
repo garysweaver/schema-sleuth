@@ -105,8 +105,8 @@ else
 end
 
 if opts[:debug]
-  opts.keys.sort.each do |opt_key_sym|
-    puts "#{opt_key_sym.to_s}=#{opts[opt_key_sym]}"
+  opts.each do |key,val|
+    puts "#{key}: #{val}"
   end
 end
 
@@ -249,11 +249,13 @@ def output(store, opts)
   end
 end
 
-table_names = []
 begin
   dbh = DBI.connect(opts[:driver_url], opts[:user], opts[:password])
 
   if opts[:debug]
+    # Note: dbh.trace fails in DBI 0.4.5: "the trace module has been removed until it actually works."
+    # so we don't attempt to call it here.
+    
     # get server version string and display it
     row = dbh.select_one('select version from v$instance')
     puts "Server version: #{row[0]}"
@@ -264,6 +266,7 @@ begin
   table_names_rows = dbh.select_all(opts[:table_names_query])
   puts "Tables: #{table_names_rows.inspect}" if opts[:debug]
   
+  table_names = []
   table_names_rows.each do |table_name_row|
     table_names << table_name_row[0]
   end
