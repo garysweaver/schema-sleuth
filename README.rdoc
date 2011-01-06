@@ -31,25 +31,25 @@ Restart Terminal.app or whatever, and then test by doing:
       
 Required:
 
-* <b>--driver-url</b>, <b>-r</b>: DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
-* <b>--user</b>, <b>-u</b>: database username. e.g. jdoe
-* <b>--password</b>, <b>-p</b>: database password. e.g. secret
-* <b>--column-name</b>, <b>-c</b>: column name. e.g. user_id
-* <b>--value</b>, <b>-e</b>: column value. e.g. 1234
+* <tt>--driver-url</tt>, <tt>-r</tt>: DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
+* <tt>--user</tt>, <tt>-u</tt>: database username. e.g. jdoe
+* <tt>--password</tt>, <tt>-p</tt>: database password. e.g. secret
+* <tt>--column-name</tt>, <tt>-c</tt>: column name. e.g. user_id
+* <tt>--value</tt>, <tt>-e</tt>: column value. e.g. 1234
 
 Required if not Oracle:
 
-* <b>--table-names-query</b>, <b>-t</b>: SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
-* <b>--column-names-query</b>, <b>-n</b>: SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* <tt>--table-names-query</tt>, <tt>-t</tt>: SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* <tt>--column-names-query</tt>, <tt>-n</tt>: SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 Optional:
 
-* <b>--generate-inserts</b>, <b>-i</b>: output as insert statements
-* <b>--maximum-depth</b>, <b>-s</b>: maximum depth (default: 5)
-* <b>--maximum-row-count</b>, <b>-m</b>: maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries. (Default: 1000)
-* <b>--debug</b>, <b>-d</b>: outputs debugging information
-* <b>--version</b>, <b>-v</b>: Print version and exit
-* <b>--help</b>, <b>-h</b>: Show this message
+* <tt>--generate-inserts</tt>, <tt>-i</tt>: output as insert statements
+* <tt>--maximum-depth</tt>, <tt>-s</tt>: maximum depth (default: 5)
+* <tt>--maximum-row-count</tt>, <tt>-m</tt>: maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries. (Default: 1000)
+* <tt>--debug</tt>, <tt>-d</tt>: outputs debugging information
+* <tt>--version</tt>, <tt>-v</tt>: Print version and exit
+* <tt>--help</tt>, <tt>-h</tt>: Show this message
 
 == Examples
 
