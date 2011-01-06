@@ -16,11 +16,12 @@ class Object
     to_s
   end
   
+  # this is for -i to write output in SQL format. using prepared statements when possible
   def sql_valuify
     if nil?
       "NULL"
     else
-      "'" + to_s + "'"
+      "'#{to_s.gsub(/\\/, '\&\&').gsub(/'/, "''")}'"
     end
   end
 end
@@ -93,8 +94,8 @@ Trollop::die :user, "must provide a database username. e.g. jdoe" unless opts[:u
 Trollop::die :password, "must provide a atabase password. e.g. secret" unless opts[:password]
 Trollop::die :column_name, "must provide a column name. e.g. user_id" unless opts[:column_name]
 Trollop::die :value, "must provide a column value. e.g. 1234" unless opts[:value]
-Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i > 0
-Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 1
+Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i >= 0
+Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 0
 
 puts "DBI version: #{DBI::VERSION}" if opts[:debug]
 
