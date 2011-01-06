@@ -6,8 +6,8 @@ require 'rubygems'
 require 'dbi'
 require 'trollop'
 
-# from Rails
 class Object
+  # from Rails
   def blank?
     respond_to?(:empty?) ? empty? : !self
   end
@@ -18,11 +18,7 @@ class Object
   
   # this is for -i to write output in SQL format. using prepared statements when possible
   def sql_valuify
-    if nil?
-      "NULL"
-    else
-      "'#{to_s.gsub(/\\/, '\&\&').gsub(/'/, "''")}'"
-    end
+    nil? ? 'NULL' : "'#{to_s.gsub(/\\/, '\&\&').gsub(/'/, "''")}'"
   end
 end
 
