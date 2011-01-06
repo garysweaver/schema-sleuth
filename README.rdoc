@@ -42,8 +42,7 @@ Restart Terminal.app or whatever, and then test by doing:
   
   Custom:
   
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name =
-'$TABLE_NAME'"
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
   
   Usage:
