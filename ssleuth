@@ -82,6 +82,7 @@ opts = Trollop::options do
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
   opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
+  opt :quiet, "quiet. does not output progress indicator", :short => 'q', :default => false
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
 
@@ -92,6 +93,7 @@ Trollop::die :column_name, "must provide a column name. e.g. user_id" unless opt
 Trollop::die :value, "must provide a column value. e.g. 1234" unless opts[:value]
 Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i >= 0
 Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 0
+Trollop::die :quiet, "cannot run quietly in debug mode. Remove debug option" if opts[:quiet] && opts[:debug]
 
 puts "DBI version: #{DBI::VERSION}" if opts[:debug]
 
@@ -114,7 +116,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
   if stack.size > opts[:maximum_depth].to_i
     if opts[:debug]
       puts "Stack size exceeded. Skipping..."
-    else
+    elsif !(opts[:quiet])
       print 'O'
       STDOUT.flush
     end
@@ -155,7 +157,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
               puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of #{opts[:maximum_row_count]}.)"
               puts ''
               puts ''
-            else
+            elsif !(opts[:quiet])
               print 'M'
               STDOUT.flush
             end
@@ -180,7 +182,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
                 store_table.row_hash[unique_key] = row_data
                 if opts[:debug]
                   puts "Row: #{unique_key}"
-                else
+                elsif !(opts[:quiet])
                   print '.'
                   STDOUT.flush
                 end
@@ -190,8 +192,8 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
                 clue_row.each_with_index do |clue_row_column_value, clue_row_column_value_index|
                   if clue_row_column_value && clue_row_column_value.to_s.size > 0
                     clue_row_column_name = store_table.columns[clue_row_column_value_index]
-                    #data_pointer = "#{this_table_name}:#{clue_row.join(', ')}"
-                    data_pointer = "#{this_table_name}.#{clue_row_column_name}"
+                    data_pointer = "#{this_table_name}:#{clue_row.join(', ')}"
+                    #data_pointer = "#{this_table_name}.#{clue_row_column_name}"
                     if !(excluded_data_pointers.include? data_pointer)
                       if opts[:debug]
                         sorted_list = excluded_data_pointers.sort.join("\n")
