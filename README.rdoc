@@ -31,25 +31,25 @@ Restart Terminal.app or whatever, and then test by doing:
       
 Required:
 
-* <tt>--driver-url</tt>, <tt>-r</tt>: DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
-* <tt>--user</tt>, <tt>-u</tt>: database username. e.g. jdoe
-* <tt>--password</tt>, <tt>-p</tt>: database password. e.g. secret
-* <tt>--column-name</tt>, <tt>-c</tt>: column name. e.g. user_id
-* <tt>--value</tt>, <tt>-e</tt>: column value. e.g. 1234
+* <code>--driver-url</code>, <code>-r</code>: DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
+* <code>--user</code>, <code>-u</code>: database username. e.g. jdoe
+* <code>--password</code>, <code>-p</code>: database password. e.g. secret
+* <code>--column-name</code>, <code>-c</code>: column name. e.g. user_id
+* <code>--value</code>, <code>-e</code>: column value. e.g. 1234
 
 Required if not Oracle:
 
-* <tt>--table-names-query</tt>, <tt>-t</tt>: SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
-* <tt>--column-names-query</tt>, <tt>-n</tt>: SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* <code>--table-names-query</code>, <code>-t</code>: SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+* <code>--column-names-query</code>, <code>-n</code>: SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 Optional:
 
-* <tt>--generate-inserts</tt>, <tt>-i</tt>: output as insert statements
-* <tt>--maximum-depth</tt>, <tt>-s</tt>: maximum depth (default: 5)
-* <tt>--maximum-row-count</tt>, <tt>-m</tt>: maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries. (Default: 1000)
-* <tt>--debug</tt>, <tt>-d</tt>: outputs debugging information
-* <tt>--version</tt>, <tt>-v</tt>: Print version and exit
-* <tt>--help</tt>, <tt>-h</tt>: Show this message
+* <code>--generate-inserts</code>, <code>-i</code>: output as insert statements
+* <code>--maximum-depth</code>, <code>-s</code>: maximum depth (default: 5)
+* <code>--maximum-row-count</code>, <code>-m</code>: maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries. (Default: 1000)
+* <code>--debug</code>, <code>-d</code>: outputs debugging information
+* <code>--version</code>, <code>-v</code>: Print version and exit
+* <code>--help</code>, <code>-h</code>: Show this message
 
 == Examples
 
