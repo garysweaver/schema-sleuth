@@ -76,7 +76,7 @@ opts = Trollop::options do
   where [options] are:
   
   EOS
-  opt :driver_url, "DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD", :short => 'r', :type => String
+  opt :driver_url, "DBI driver URL. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD", :short => 'r', :type => String
   opt :user, "database username. e.g. jdoe", :short => 'u', :type => String
   opt :password, "database password. e.g. secret", :short => 'p', :type => String
   opt :column_name, "column name (case-insensitive). e.g. user_id", :short => 'c', :type => String

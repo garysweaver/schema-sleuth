@@ -55,7 +55,7 @@ Restart Terminal.app or whatever, and then test by doing:
          
   where [options] are:
   
-                      --driver-url, -r <s>:   DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
+                      --driver-url, -r <s>:   DBI driver URL. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD
                             --user, -u <s>:   database username. e.g. jdoe
                         --password, -p <s>:   database password. e.g. secret
                      --column-name, -c <s>:   column name (case-insensitive). e.g. user_id
