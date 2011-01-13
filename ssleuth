@@ -295,6 +295,10 @@ begin
   puts ''
   puts "Outputting..." if opts[:debug]
   
+  if opts[:generate_inserts] && !opts[:quiet]
+    puts 'Note: Ensure that any dates in the insert statements work in the target database. MySQL default format is: \'YYYY-MM-DD\' or \'YYYY-MM-DD HH:mm:SS\'. PostgreSQL default format is: date \'YYYY-MM-DD\' or timestamp \'YYYY-MM-DD HH:mm:SS\'. Oracle\'s default date format is: \'DD-MON-YY\'.'
+  end
+  
   output(store, opts)
   
 rescue DBI::DatabaseError => e
