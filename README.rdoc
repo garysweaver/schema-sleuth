@@ -1,6 +1,6 @@
 = Schema Sleuth
 
-A ruby script (for *nix) to search a database for related records based given a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc.
+A ruby script (for *nix) to search a database for related records based given a value or a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc.
 
 == Installation
 
@@ -75,6 +75,20 @@ Restart Terminal.app or whatever, and then test by doing:
                                 --help, -h:   Show this message
 
 == Examples
+
+=== Using Schema Sleuth with Value Only
+
+This would find any record with value "1234" in any column in any table in the database and use that as a starting point:
+
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -e 1234
+
+=== Using Schema Sleuth with a Provided Column Name and Value
+
+This would find any record with value "1234" in any "USER_ID" column in any table in the database and use that as a starting point:
+
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
+
+=== Using Schema Sleuth with Different Databases
 
 MySQL:
 

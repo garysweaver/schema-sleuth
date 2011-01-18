@@ -94,7 +94,6 @@ end
 Trollop::die :driver_url, "must provide a DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD" unless opts[:driver_url]
 Trollop::die :user, "must provide a database username. e.g. jdoe" unless opts[:user]
 Trollop::die :password, "must provide a atabase password. e.g. secret" unless opts[:password]
-Trollop::die :column_name, "must provide a column name. e.g. user_id" unless opts[:column_name]
 Trollop::die :value, "must provide a column value. e.g. 1234" unless opts[:value]
 Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i >= 0
 Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 0
@@ -158,7 +157,7 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
         end
         puts "Converted #{this_column_name} to #{capitalized_column_name_partial} for match" if opts[:debug]
         
-        if capitalized_column_name_partial.eql? column_name.upcase
+        if column_name.nil? || (capitalized_column_name_partial.eql? column_name.upcase)
           count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name}=?"
           prepared_count_query = dbh.prepare(count_query)
           last_query = count_query
@@ -226,9 +225,11 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
       end
       
     rescue Exception => e
-      puts "#{e.message}"
-      eol = "\n"
-      puts "#{e.backtrace.join(eol)}"
+      if !(opts[:quiet])
+        puts "#{e.message}"
+        eol = "\n"
+        puts "#{e.backtrace.join(eol)}"
+      end
     end
   end
   
@@ -296,15 +297,17 @@ begin
   puts "Outputting..." if opts[:debug]
   
   if opts[:generate_inserts] && !opts[:quiet]
-    puts 'Note: Ensure that any dates in the insert statements work in the target database. MySQL default format is: \'YYYY-MM-DD\' or \'YYYY-MM-DD HH:mm:SS\'. PostgreSQL default format is: date \'YYYY-MM-DD\' or timestamp \'YYYY-MM-DD HH:mm:SS\'. Oracle\'s default date format is: \'DD-MON-YY\'.'
+    puts 'Note: The following SQL may not work in your database. For example, you must ensure that the date format matches the format required in the target database. For MySQL, the default date/timestamp format is: \'YYYY-MM-DD\'/\'YYYY-MM-DD HH:mm:SS\'. For PostgreSQL, it is: date \'YYYY-MM-DD\'/timestamp \'YYYY-MM-DD HH:mm:SS\'. And Oracle\'s default date format is: \'DD-MON-YY\'.'
   end
   
   output(store, opts)
   
 rescue DBI::DatabaseError => e
-  puts "An error occurred"
-  puts "Error code: #{e.err}"
-  puts "Error message: #{e.errstr}"
+  if !(opts[:quiet])
+    puts "An error occurred"
+    puts "Error code: #{e.err}"
+    puts "Error message: #{e.errstr}"
+  end
 ensure
   # disconnect from server
   dbh.disconnect if dbh
