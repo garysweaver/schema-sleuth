@@ -64,6 +64,10 @@ opts = Trollop::options do
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -q -x 'next_,prev_'
   
+  Dump all data in tables (under maximum row count) to a list of inserts
+  
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -e 1234 -q -i -a -m
+  
   Custom:
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "#{EXAMPLE_TABLE_NAMES_QUERY}" -n "#{EXAMPLE_COLUMN_NAMES_QUERY}"
@@ -87,14 +91,16 @@ opts = Trollop::options do
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
   opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
   opt :column_name_partials_to_remove, "comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify -x 'next_'", :short => 'x', :type => String
+  opt :table_pattern, "table names must match this regexp pattern be included, otherwise are excluded", :short => 'b', :type => String
+  opt :all_data, "instead of following relationships, just output all table data", :short => 'a', :default => false
   opt :quiet, "quiet. does not output progress indicator", :short => 'q', :default => false
   opt :debug, "outputs debugging information", :short => 'd', :default => false
 end
 
-Trollop::die :driver_url, "must provide a DBI driver URL. Be sure to add .WORLD after the SID for Oracle. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD" unless opts[:driver_url]
+Trollop::die :driver_url, "must provide a DBI driver URL. e.g. DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD" unless opts[:driver_url]
 Trollop::die :user, "must provide a database username. e.g. jdoe" unless opts[:user]
 Trollop::die :password, "must provide a atabase password. e.g. secret" unless opts[:password]
-Trollop::die :value, "must provide a column value. e.g. 1234" unless opts[:value]
+Trollop::die :value, "must provide a column value. e.g. 1234" unless (opts[:value] || opts[:all_data])
 Trollop::die :maximum_depth, "maximum depth must be a positive integer. e.g. 5" unless opts[:maximum_depth].to_i >= 0
 Trollop::die :maximum_row_count, "maximum row count must be greater than zero. e.g. 1000" unless opts[:maximum_row_count].to_i > 0
 Trollop::die :quiet, "cannot run quietly in debug mode. Remove debug option" if opts[:quiet] && opts[:debug]
@@ -142,8 +148,8 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
           puts specific_column_names_query 
         end
         column_names_rows = dbh.select_all(specific_column_names_query)
-        
         store[this_table_name].columns = column_names_rows.collect {|column_names_row| column_names_row[0] }
+        
         puts "Columns: #{store[this_table_name].columns.join(', ')}" if opts[:debug]
         store[this_table_name].row_hash = {}
       end
@@ -159,7 +165,6 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
         
         if column_name.nil? || (capitalized_column_name_partial.eql? column_name.upcase)
           count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name}=?"
-          prepared_count_query = dbh.prepare(count_query)
           last_query = count_query
           count_row = dbh.select_one(count_query, value)
           if count_row[0] && count_row[0].to_i > opts[:maximum_row_count].to_i
@@ -173,7 +178,6 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
             end
           else
             data_query = "select * from #{this_table_name} where #{this_column_name}=?"
-            prepared_data_query = dbh.prepare(data_query)
             last_query = data_query
             clue_rows = dbh.select_all(data_query, value)
             
@@ -237,6 +241,72 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
   return
 end
 
+def all_data(dbh, store, table_names, opts)  
+  table_names.each do |this_table_name|
+    begin
+      store[this_table_name] = SchemaSleuth::TableData.new 
+      store[this_table_name].name = this_table_name
+      puts "Table: #{this_table_name}" if opts[:debug]
+      
+      specific_column_names_query = String.new(opts[:column_names_query])
+      specific_column_names_query['$TABLE_NAME'] = this_table_name
+      last_query = specific_column_names_query
+      if opts[:debug]
+        puts specific_column_names_query 
+      end
+      column_names_rows = dbh.select_all(specific_column_names_query)
+      store[this_table_name].columns = column_names_rows.collect {|column_names_row| column_names_row[0] }
+      puts "Columns: #{store[this_table_name].columns.join(', ')}" if opts[:debug]
+      store[this_table_name].row_hash = {}
+      
+      store_table = store[this_table_name]
+      if store_table.columns != nil && store_table.columns.size > 0
+        count_query = "select count(#{store_table.columns[0]}) from #{this_table_name}"
+        last_query = count_query
+        count_row = dbh.select_one(count_query)
+        if count_row[0] && count_row[0].to_i > opts[:maximum_row_count].to_i
+          if opts[:debug]
+            puts "skipping #{this_table_name}: (found #{count_row[0].to_i} rows matching, which exceeded maximum row count of #{opts[:maximum_row_count]}.)"
+            puts ''
+            puts ''
+          elsif !(opts[:quiet])
+            print 'M'
+            STDOUT.flush
+          end
+        else
+          data_query = "select * from #{this_table_name}"
+          last_query = data_query
+          clue_rows = dbh.select_all(data_query)
+          
+          if (clue_rows.size > 0)            
+            clue_rows.each do |clue_row|
+              clue_row.collect{|x| x.prettify }
+              row_data = clue_row.collect{|x| x.prettify.sql_valuify }
+              unique_key = row_data.join(', ')
+              store_table.row_hash[unique_key] = row_data
+              if opts[:debug]
+                puts "Row: #{unique_key}"
+              elsif !(opts[:quiet])
+                print '.'
+                STDOUT.flush
+              end
+            end
+          end
+        end
+      end
+      
+    rescue Exception => e
+      if !(opts[:quiet])
+        puts "#{e.message}"
+        eol = "\n"
+        puts "#{e.backtrace.join(eol)}"
+      end
+    end
+  end
+  
+  return
+end
+
 def output(store, opts)
   store.keys.sort.each do |store_key|
     table = store[store_key]
@@ -282,16 +352,23 @@ begin
   
   table_names = []
   table_names_rows.each do |table_name_row|
-    table_names << table_name_row[0]
+    if opts[:table_pattern].blank? || table_name_row[0].match(/#{opts[:table_pattern]}/)
+      table_names << table_name_row[0]
+    else
+      puts "Excluded table '#{table_name_row[0]}' which didn't match pattern '#{opts[:table_pattern]}'" if opts[:debug]
+    end
   end
   
+  puts ''
   puts "Analyzing..." if opts[:debug]
   
   store = {}
-  
-  column_name_partials_to_remove = opts[:column_name_partials_to_remove].blank? ? [] : opts[:column_name_partials_to_remove].split(',')
-  
-  sleuth(dbh, store, table_names, opts[:column_name], opts[:value], opts, [], [], column_name_partials_to_remove)
+  if opts[:all_data] == true
+    all_data(dbh, store, table_names, opts)
+  else
+    column_name_partials_to_remove = opts[:column_name_partials_to_remove].blank? ? [] : opts[:column_name_partials_to_remove].split(',')
+    sleuth(dbh, store, table_names, opts[:column_name], opts[:value], opts, [], [], column_name_partials_to_remove)
+  end
   
   puts ''
   puts "Outputting..." if opts[:debug]
