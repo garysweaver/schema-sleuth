@@ -83,13 +83,24 @@ Restart Terminal.app or whatever, and then test by doing:
 
 This would find any record with value "1234" in any column in any table in the database and use that as a starting point:
 
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -e 1234
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST -u jdoe -p secret -e 1234
 
 === Using Schema Sleuth with a Provided Column Name and Value
 
 This would find any record with value "1234" in any "USER_ID" column in any table in the database and use that as a starting point:
 
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST -u jdoe -p secret -c user_id -e 1234
+
+=== Doing a Custom Schema Diff
+
+This would dump all tables under 10 million rows from two database schemas to db1.txt and db2.txt as insert statements. This may take a really long time. Then it would diff these two files and put the result into changes.txt:
+
+  ssleuth -r DBI:OCI8://db1.acme.org:2345/ACMETEST -u jdoe -p secret -a -q -i -m 10000000 > db1.txt && ssleuth -r DBI:OCI8://db2.acme.org:1234/ACMETEST -u jdoe -p secret -a -q -i -m 10000000 > db2.txt && diff db1.txt db2.txt > changes.txt
+
+This would dump all tables under 10 million rows where the table names start with AUTO from two database schemas to db1.txt and db2.txt as insert statements. Then it would diff these two files and put the result into autochanges.txt:
+
+  ssleuth -r DBI:OCI8://db1.acme.org:2345/ACMETEST -u jdoe -p secret -a -q -i -b "AUTO(.*)" -m 10000000 > db1.txt && ssleuth -r DBI:OCI8://db2.acme.org:1234/ACMETEST -u jdoe -p secret -a -q -i -b "AUTO(.*)" -m 10000000 > db2.txt && diff db1.txt db2.txt > autochanges.txt
+
 
 === Using Schema Sleuth with Different Databases
 
@@ -99,11 +110,11 @@ MySQL:
 
 Oracle:
 
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST -u jdoe -p secret -c user_id -e 1234
 
 Custom:
 
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
 == Sample Output
 
