@@ -1,6 +1,6 @@
 = Schema Sleuth
 
-A ruby script (for *nix) to search a database for related records based given a value or a column name and value and recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc.
+A ruby script (for *nix) to search a database for related records based given a value or a column name and value. Recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc. Can also output/dump all data in specific tables or tables under a specified row count, which can be used along with diff to provide a selective table schema diff.
 
 == Installation
 
@@ -27,7 +27,7 @@ Restart Terminal.app or whatever, and then test by doing:
 	
 == Usage
 
-    Connects to and spiders a database, outputting related records based on the column name and value provided.
+    Finds related data in a database.
 
     Examples:
 
@@ -76,7 +76,6 @@ Restart Terminal.app or whatever, and then test by doing:
                                  --debug, -d:   outputs debugging information
                                --version, -v:   Print version and exit
                                   --help, -h:   Show this message
-
 
 == Examples
 

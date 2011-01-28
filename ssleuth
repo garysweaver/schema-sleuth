@@ -44,10 +44,10 @@ EXAMPLE_TABLE_NAMES_QUERY = ORACLE_TABLE_NAMES_QUERY
 EXAMPLE_COLUMN_NAMES_QUERY = ORACLE_COLUMN_NAMES_QUERY
 
 opts = Trollop::options do
-  version "Schema Sleuth 2.0 (c) 2010-2011 Gary S. Weaver"
+  version "Schema Sleuth 2.5 (c) 2010-2011 Gary S. Weaver"
   banner <<-EOS
   
-  Connects to and spiders a database, outputting related records based on the column name and value provided.
+  Finds related data in a database.
 
   Examples:
   
@@ -274,7 +274,7 @@ def all_data(dbh, store, table_names, opts)
             STDOUT.flush
           end
         else
-          data_query = "select * from #{this_table_name}"
+          data_query = "select #{store[this_table_name].columns.join(', ')} from #{this_table_name}"
           last_query = data_query
           clue_rows = dbh.select_all(data_query)
           
@@ -314,7 +314,7 @@ def output(store, opts)
       if opts[:generate_inserts]
         table.row_hash.keys.sort.each do |row_key|
           row = table.row_hash[row_key]
-          puts "   INSERT INTO #{table.name} (#{table.columns.join ', '}) VALUES (#{row.join ', '});"
+          puts "INSERT INTO #{table.name} (#{table.columns.join ', '}) VALUES (#{row.join ', '});"
         end
       else
         puts "#{table.name}"
