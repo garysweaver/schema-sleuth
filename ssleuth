@@ -87,7 +87,9 @@ opts = Trollop::options do
   opt :value, "column value. e.g. 1234", :short => 'e', :type => String
   opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 't', :type => String
   opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 'n', :type => String
+  opt :generate_deletes, "output as delete statements", :short => 'l', :default => false
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
+  opt :generate_updates, "output as update statements", :short => 'w', :default => false
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
   opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
   opt :column_name_partials_to_remove, "comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify -x 'next_'", :short => 'x', :type => String
@@ -311,10 +313,20 @@ def output(store, opts)
   store.keys.sort.each do |store_key|
     table = store[store_key]
     if table.row_hash && table.row_hash.size > 0
-      if opts[:generate_inserts]
+      if opts[:generate_deletes] || opts[:generate_inserts] || opts[:generate_updates]
         table.row_hash.keys.sort.each do |row_key|
           row = table.row_hash[row_key]
-          puts "INSERT INTO #{table.name} (#{table.columns.join ', '}) VALUES (#{row.join ', '});"
+          pairs = nil
+          if opts[:generate_deletes] || opts[:generate_updates]
+            pairs = []
+            table.columns.each_with_index do |column, i|
+              pairs[i] = "#{column} = #{row[i]}"
+            end
+          end
+          
+          puts "DELETE FROM #{table.name} WHERE #{pairs.join ' AND '};" if opts[:generate_deletes]
+          puts "INSERT INTO #{table.name} (#{table.columns.join ', '}) VALUES (#{row.join ', '});" if opts[:generate_inserts]
+          puts "UPDATE #{table.name} SET #{pairs.join ', '} WHERE #{pairs.join ' AND '};" if opts[:generate_updates]
         end
       else
         puts "#{table.name}"
