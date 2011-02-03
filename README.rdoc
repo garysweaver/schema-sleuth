@@ -2,6 +2,8 @@
 
 A ruby script (for *nix) to search a database for related records based given a value or a column name and value. Recursively follows and outputs related rows. Attempts to avoid excessive recursion via related record row limit default of 1000 (otherwise can be slow and may run out of memory), a default max related table depth level of 5, etc. Can also output/dump all data in specific tables or tables under a specified row count, which can be used along with diff to provide a selective table schema diff.
 
+Although Schema Sleuth can perform partial dumps which can be diff'd, a better free tool to use for that is {SchemaCrawler}[http://schemacrawler.sourceforge.net/].
+
 == Installation
 
 Install Git and Ruby.
