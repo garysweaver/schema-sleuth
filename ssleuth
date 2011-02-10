@@ -44,7 +44,7 @@ EXAMPLE_TABLE_NAMES_QUERY = ORACLE_TABLE_NAMES_QUERY
 EXAMPLE_COLUMN_NAMES_QUERY = ORACLE_COLUMN_NAMES_QUERY
 
 opts = Trollop::options do
-  version "Schema Sleuth 2.6.0 (c) 2010-2011 Gary S. Weaver"
+  version "Schema Sleuth 2.6.1 (c) 2010-2011 Gary S. Weaver"
   banner <<-EOS
   
   Finds related data in a database.
