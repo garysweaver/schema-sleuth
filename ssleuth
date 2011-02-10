@@ -70,7 +70,7 @@ opts = Trollop::options do
   
   Ignore tables ending in _LOG or _STAT
   
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -b ^\(?\!\(\(.*_LOG\)\|\(.*_STAT\)\)\)
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -b ^\\(?\\!\\(\\(.*_LOG\\)\\|\\(.*_STAT\\)\\)\\)
   
   Custom:
   
