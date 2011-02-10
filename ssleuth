@@ -37,14 +37,14 @@ module SchemaSleuth
 end
 
 
-ORACLE_TABLE_NAMES_QUERY = 'select TABLE_NAME from ALL_ALL_TABLES'
+ORACLE_TABLE_NAMES_QUERY = 'select TABLE_NAME from USER_TABLES'
 ORACLE_COLUMN_NAMES_QUERY = 'select column_name FROM all_tab_cols where table_name = \'$TABLE_NAME\''
 
 EXAMPLE_TABLE_NAMES_QUERY = ORACLE_TABLE_NAMES_QUERY
 EXAMPLE_COLUMN_NAMES_QUERY = ORACLE_COLUMN_NAMES_QUERY
 
 opts = Trollop::options do
-  version "Schema Sleuth 2.5 (c) 2010-2011 Gary S. Weaver"
+  version "Schema Sleuth 2.6.0 (c) 2010-2011 Gary S. Weaver"
   banner <<-EOS
   
   Finds related data in a database.
@@ -67,6 +67,10 @@ opts = Trollop::options do
   Dump all data in tables (under maximum row count) to a list of inserts
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -e 1234 -q -i -a -m
+  
+  Ignore tables ending in _LOG or _STAT
+  
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -b ^\(?\!\(\(.*_LOG\)\|\(.*_STAT\)\)\)
   
   Custom:
   
@@ -92,6 +96,7 @@ opts = Trollop::options do
   opt :generate_updates, "output as update statements", :short => 'w', :default => false
   opt :maximum_depth, "maximum depth", :short => 's', :default => 5
   opt :maximum_row_count, "maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries", :short => 'm', :default => 1000
+  opt :likes, "value comparisons done as likes rather than equals", :default => false
   opt :column_name_partials_to_remove, "comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify -x 'next_'", :short => 'x', :type => String
   opt :table_pattern, "table names must match this regexp pattern be included, otherwise are excluded", :short => 'b', :type => String
   opt :all_data, "instead of following relationships, just output all table data", :short => 'a', :default => false
@@ -166,7 +171,11 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
         puts "Converted #{this_column_name} to #{capitalized_column_name_partial} for match" if opts[:debug]
         
         if column_name.nil? || (capitalized_column_name_partial.eql? column_name.upcase)
-          count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name}=?"
+          if opts[:likes]
+            count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name} like ?"
+          else
+            count_query = "select count(#{this_column_name}) from #{this_table_name} where #{this_column_name}=?"
+          end
           last_query = count_query
           count_row = dbh.select_one(count_query, value)
           if count_row[0] && count_row[0].to_i > opts[:maximum_row_count].to_i
@@ -179,7 +188,11 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
               STDOUT.flush
             end
           else
-            data_query = "select * from #{this_table_name} where #{this_column_name}=?"
+            if opts[:likes]
+              data_query = "select * from #{this_table_name} where #{this_column_name} like ?"
+            else
+              data_query = "select * from #{this_table_name} where #{this_column_name}=?"
+            end
             last_query = data_query
             clue_rows = dbh.select_all(data_query, value)
             

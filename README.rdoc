@@ -48,9 +48,13 @@ Restart Terminal.app or whatever, and then test by doing:
   
   ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -e 1234 -q -i -a -m
   
+  Ignore tables ending in _LOG or _STAT
+  
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -b ^(?!((.*_LOG)|(.*_STAT)))
+  
   Custom:
   
-  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from ALL_ALL_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+  ssleuth -r DBI:OCI8://db.acme.org:1234/ACMETEST.WORLD -u jdoe -p secret -c user_id -e 1234 -t "select TABLE_NAME from USER_TABLES" -n "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
 
   
   Usage:
@@ -65,19 +69,25 @@ Restart Terminal.app or whatever, and then test by doing:
                      --column-name, -c <s>:   column name (case-insensitive). e.g. user_id
                            --value, -e <s>:   column value. e.g. 1234
                --table-names-query, -t <s>:   SQL query to use to get full listing of tables. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
-              --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name = '$TABLE_NAME'"
+              --column-names-query, -n <s>:   SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. "select column_name FROM all_tab_cols where table_name =
+                                              '$TABLE_NAME'"
                     --generate-deletes, -l:   output as delete statements
                     --generate-inserts, -i:   output as insert statements
                     --generate-updates, -w:   output as update statements
                    --maximum-depth, -s <i>:   maximum depth (default: 5)
-               --maximum-row-count, -m <i>:   maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in result summaries, via multiple queries (default: 1000)
-  --column-name-partials-to-remove, -x <s>:   comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify -x 'next_'
+               --maximum-row-count, -m <i>:   maximum row count. Does not attempt to follow path if more than this many rows are found from a query. However, you can still get more than one row in
+                                              result summaries, via multiple queries (default: 1000)
+                               --likes, -k:   value comparisons done as likes rather than equals
+  --column-name-partials-to-remove, -x <s>:   comma-delimited list of (case-insensitive) text to remove from column names when following path. e.g. to make next_user_id and user_id match, you'd specify
+                                              -x 'next_'
                    --table-pattern, -b <s>:   table names must match this regexp pattern be included, otherwise are excluded
                             --all-data, -a:   instead of following relationships, just output all table data
                                --quiet, -q:   quiet. does not output progress indicator
                                --debug, -d:   outputs debugging information
                              --version, -v:   Print version and exit
                                 --help, -h:   Show this message
+
+
 
 == Examples
 
