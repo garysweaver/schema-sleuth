@@ -89,7 +89,7 @@ opts = Trollop::options do
   opt :password, "database password. e.g. secret", :short => 'p', :type => String
   opt :column_name, "column name (case-insensitive). e.g. user_id", :short => 'c', :type => String
   opt :value, "column value. e.g. 1234", :short => 'e', :type => String
-  opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 't', :type => String
+  opt :table_names_query, "SQL query to use to get full listing of tables. e.g. \"#{EXAMPLE_TABLE_NAMES_QUERY}\"", :short => 't', :type => String
   opt :column_names_query, "SQL query to use to get column names for a table. Substitute $TABLE_NAME for the table name. e.g. \"#{EXAMPLE_COLUMN_NAMES_QUERY}\"", :short => 'n', :type => String
   opt :generate_deletes, "output as delete statements", :short => 'l', :default => false
   opt :generate_inserts, "output as insert statements", :short => 'i', :default => false
@@ -119,8 +119,8 @@ if opts[:driver_url].upcase.match(/^DBI:OCI8/)
   opts[:table_names_query] = ORACLE_TABLE_NAMES_QUERY if opts[:table_names_query].blank?
   opts[:column_names_query] = ORACLE_COLUMN_NAMES_QUERY if opts[:column_names_query].blank?
 else
-  Trollop::die :table_names_query, "Please specify a table names query for this database." if opts[:table_names_query].blank?
-  Trollop::die :column_names_query, "Please specify a column names query for this database." if opts[:column_names_query].blank?
+  Trollop::die :table_names_query, "Failed. Ensure the driver URL has a DBI:(driver_name) prefix, or specify a table names query for this database." if opts[:table_names_query].blank?
+  Trollop::die :column_names_query, "Failed. Ensure the driver URL has a DBI:(driver_name) prefix, or specify a column names query for this database." if opts[:column_names_query].blank?
 end
 
 if opts[:debug]
@@ -205,7 +205,6 @@ def sleuth(dbh, store, table_names, column_name, value, opts, excluded_data_poin
               end
               
               clue_rows.each do |clue_row|
-                clue_row.collect{|x| x.prettify }
                 row_data = clue_row.collect{|x| x.prettify.sql_valuify }
                 unique_key = row_data.join(', ')
                 store_table.row_hash[unique_key] = row_data
