@@ -13,7 +13,7 @@ class Object
   end
   
   def prettify
-    to_s
+    self.class.name == 'OCI8::CLOB' ? read() : to_s()
   end
   
   # this is for -i to write output in SQL format. using prepared statements when possible
